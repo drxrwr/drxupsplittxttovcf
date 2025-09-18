@@ -1,4 +1,9 @@
-// Ganti § jadi spasi
+// Ganti § jadi spasi dan trim depan saja (biar spasi di belakang tetap ada)
+function parseWithSpasiPreserveTrailing(text) {
+  return text.replace(/§/g, ' ').replace(/^\s+/, '');
+}
+
+// Ganti § jadi spasi dan trim semua (untuk input lain yang butuh trim penuh)
 function parseWithSpasi(text) {
   return text.replace(/§/g, ' ').trim();
 }
@@ -56,12 +61,12 @@ document.getElementById("splitVCFButton").addEventListener("click", async functi
   let startNumber = parseInt(document.getElementById("startNumberInput").value);
   if (isNaN(startNumber)) startNumber = 1;
 
-  // Gunakan parseWithSpasi agar § jadi spasi di nama file dan tambahan
+  // Gunakan parseWithSpasiPreserveTrailing agar § jadi spasi dan spasi di belakang tetap ada
   const fileNameRaw = document.getElementById("splitFileNameInput").value;
   const additionalFileNameRaw = document.getElementById("additionalFileNameInput").value;
 
-  const fileNameParsed = parseWithSpasi(fileNameRaw);
-  const additionalFileName = parseWithSpasi(additionalFileNameRaw);
+  const fileNameParsed = parseWithSpasiPreserveTrailing(fileNameRaw);
+  const additionalFileName = parseWithSpasiPreserveTrailing(additionalFileNameRaw);
 
   const useCustomName = document.getElementById("customNameCheckbox").checked;
 
@@ -90,8 +95,8 @@ document.getElementById("splitVCFButton").addEventListener("click", async functi
 
   chunks.forEach((chunk, chunkIndex) => {
     const fileIndex = startNumber + chunkIndex;
-    // Jangan ganti spasi jadi underscore di nama file, biarkan spasi
-    const currentFileName = `${fileNameParsed}${fileIndex}${additionalFileName ? " " + additionalFileName : ""}`.trim();
+    // Jangan trim di sini supaya spasi di belakang fileNameParsed tetap ada
+    const currentFileName = `${fileNameParsed}${fileIndex}${additionalFileName ? " " + additionalFileName : ""}`;
 
     let vcfContent = "";
 
@@ -133,8 +138,8 @@ document.getElementById("splitVCFButton").addEventListener("click", async functi
   const zipLink = document.createElement("a");
 
   const lastFileIndex = startNumber + chunks.length - 1;
-  // Jangan ganti spasi jadi underscore di nama zip juga
-  const zipFileName = `${fileNameParsed}${startNumber}-${lastFileIndex}${additionalFileName ? " " + additionalFileName : ""}`.trim();
+  // Jangan trim di sini supaya spasi di belakang tetap ada
+  const zipFileName = `${fileNameParsed}${startNumber}-${lastFileIndex}${additionalFileName ? " " + additionalFileName : ""}`;
 
   zipLink.href = URL.createObjectURL(zipBlob);
   zipLink.download = `${zipFileName}.zip`;
